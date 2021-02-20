@@ -1,0 +1,11 @@
+{
+  "name": "contentionRatioCalculator",
+  "version": "1.0.0",
+  "description": "NodeJs script to calculate contention ratio on different XCs from linetags on JH",
+  "main": "index.js",
+  "author": "Mike Murray",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}

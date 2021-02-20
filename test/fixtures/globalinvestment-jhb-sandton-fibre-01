@@ -1,0 +1,40 @@
+circt_type: fibrel3
+circt_carrier: seacom
+circt_owner: seacom
+circt_usr: 
+circt_num_l1: so012446 & so020446
+circt_num_l2: 
+circt_num_l3: sea19/voice/201502433
+circt_num_svc: 
+speed: 5mbps
+vlan: 2433
+proutr_host: svs-za-jhb-ne-mse-01
+proutr_int: xe-2/0/1.2433
+pswitch_host: svs-za-jhb-ne-csw-01
+pswitch_port: ae7.0
+croutr_host: svs-za-jhb-globalinvestment-sandton-ce-01
+croutr_int: ge-0/0/0.0
+crouter_make: juniper
+croutr_model: srx300
+croutr_own: svs
+p2p_subnet: 198.18.114.196/30
+route_1: 198.18.44.80/30
+route_2: 172.16.24.160/27
+route_3: 
+route_4: 
+route_5: 
+client: global investment reporting
+vrf: globalinvestment
+rd: 327733l:1801
+site: sandton
+qos_voice: 
+qos_vvcc: 
+qos_bus_priority: 
+qos_bus_best effort: 
+qos_internet: 
+qos_net_ctrl: 
+note_1: 
+note_2: 
+note_3: 
+note_4: 
+note_5: 
