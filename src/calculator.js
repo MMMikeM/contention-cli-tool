@@ -10,18 +10,28 @@ const calculate = (linetagFolder, soNumber, city, carrier) => {
 
   let files = fs.readdirSync(linetagFolder);
   let filteredFiles = files.filter((file) => file[0] !== ".");
-  let data = filteredFiles.map((file) =>
+
+  let test = filteredFiles.map((file) =>
+    filterFiles(`${linetagFolder}/${file}`)
+  );
+
+  let xcData = filteredFiles.map((file) =>
     extractData(`${linetagFolder}/${file}`)
   );
 
-  let mainEntry = data.find(
+  let mainEntry = xcData.find(
     (entry) =>
       entry.circuitType === "xc" &&
       entry.carrier === carrier &&
       entry.city === city
   );
-  let xcSpeedString = mainEntry.speed;
+
+  let xcSpeedString = mainEntry.speed || "";
   let xcSpeed = unitHandler(xcSpeedString, mainEntry.fileName);
+
+  let data = files
+    .filter((file) => file[0] !== ".")
+    .filter((file) => fs.readFileSync(file).contains("svsbackhaul"));
 
   soldSpeed = data
     .filter((entry) => entry.circuitType !== "xc")
@@ -46,37 +56,52 @@ const unitHandler = (input, fileName) => {
     let [_, speed, unit] = speedRegex.exec(input);
     let speedInt = parseInt(speed);
     if (unit === "g") {
-      speedInt = speedInt * 1024;
+      speedInt = speedInt * 1000;
     }
     if (unit === "t") {
-      speedInt = speedInt * 1024 * 1024;
+      speedInt = speedInt * 1000 * 1000;
     }
     return speedInt;
   }
 };
 
+const filterFiles = (filePath) => {
+  const file = fs.readFileSync(filePath, "utf8");
+  const lines = file.split("\n");
+  let fileName = path.basename(filePath);
+  console.log({
+    filePath: filePath,
+    file: lines.find((item) => item.match(/speed: (.*)/)),
+  });
+};
+
 const extractData = (filePath) => {
   const file = fs.readFileSync(filePath, "utf8");
   const lines = file.split("\n");
+  let fileName = path.basename(filePath);
 
   let speed, carrier, city, circuitType, circuitNumber;
   let error = null;
 
   try {
-    [speed, error] = regexer(/speed: (.*)/, lines);
-    [carrier, error] = regexer(/circt_carrier: (.*)/, lines);
-    [city, error] = regexer(/pswitch_host:\ssvs-za-(.*)-\w+-\w+-\d+/, lines);
-    [circuitType, error] = regexer(/circt_type: (.*)/, lines);
-    [circuitNumber, error] = regexer(/circt_num_l1: (.*)/, lines);
+    [speed, error] = regexer(/speed: (.*)/, lines, fileName);
+    [carrier, error] = regexer(/circt_carrier: (.*)/, lines, fileName);
+    [city, error] = regexer(
+      /pswitch_host:\ssvs-za-(.*)-\w+-\w+-\d+/,
+      lines,
+      fileName
+    );
+    [circuitType, error] = regexer(/circt_type: (.*)/, lines, fileName);
+    [circuitNumber, error] = regexer(/circt_num_l1: (.*)/, lines, fileName);
     if (error !== null) {
-      // throw new Error(`Regex failed on file: ${filePath} - ${error}`);
-      console.log(error);
+      throw new Error(`Regex failed on file: ${filePath} - ${error}`);
+      // console.log(error);
     }
   } catch (error) {
     console.log(error);
   } finally {
     return {
-      fileName: path.basename(filePath),
+      fileName: fileName,
       speed: speed,
       circuitType: circuitType,
       circuitNumber: circuitNumber,
@@ -86,14 +111,14 @@ const extractData = (filePath) => {
   }
 };
 
-const regexer = (pattern, lines) => {
+const regexer = (pattern, lines, filePath) => {
   let matchDirty = lines.find((line) => line.match(pattern));
   let match = "";
   if (matchDirty) {
     match = pattern.exec(matchDirty);
     return [match[1], null];
   } else {
-    return ["", `No match found - ${pattern}`];
+    return ["", `No match found - ${pattern} in ${filePath}`];
   }
 };
 

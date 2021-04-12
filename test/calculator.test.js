@@ -45,7 +45,7 @@ describe("contention ratio calculator", () => {
     }),
     test("When given a bandwidth speed, it returns an integer of the speed in mbps", () => {
       const input = "123tbps";
-      const output = 128974848;
+      const output = 123000000;
       const res = unitHandler(input);
       expect(res).toBe(output);
     }),
